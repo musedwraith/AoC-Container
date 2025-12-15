@@ -2,23 +2,40 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <errno.h>
+#include <string.h>
 // Local headers
 #include <loader.h>
 
 ErrorData load_raw(InputData *input, const char *name) {
     FILE *inputFile = fopen(name, "r");
-    // HANDLE FAIL
-    fseek(inputFile, 0, SEEK_END);
-    // HANDLE FAIL
-    input->size = (size_t) ftell(inputFile);
-    // HANDLE FAIL
-    // HANDLE SIZE == 0
-    fseek(inputFile, 0, SEEK_SET);
-    // HANDLE FAIL
+    if(inputFile == NULL)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_READ, strerror(errno));
+
+    int status;
+    status = fseek(inputFile, 0, SEEK_END);
+    if(status < 0)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_READ, strerror(errno));
+
+    status = ftell(inputFile);
+    if(status < 0)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_READ, strerror(errno));
+    if(status == 0)
+        return CONSTRUCT_ERROR(
+            CHALLENGE_NO_READ, "Cannot read input file, because size is 0"
+        );
+
+    input->size = (size_t) status;
+    status = fseek(inputFile, 0, SEEK_SET);
+    if(status < 0)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_READ, strerror(errno));
+
     input->rawData = malloc(input->size + 1);
-    // HANDLE FAIL
-    fread(input->rawData, sizeof(char), input->size, inputFile);
-    // HANDLE FAIL
+    if(input->rawData == NULL)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_MEMORY, "Failed to allocate input data memory");
+    size_t bytesRead = fread(input->rawData, sizeof(char), input->size, inputFile);
+    if(bytesRead == 0 || feof(inputFile) == 0)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_READ, "Failed to read entirety of input file");
     fclose(inputFile);
     input->rawData[input->size] = '\0';
 }
@@ -32,7 +49,8 @@ ErrorData find_lines(InputData *input) {
     }
 
     input->grid.lines = malloc(sizeof(char*) * input->grid.height);
-    // HANDLE FAIL
+    if(input->grid.lines == NULL)
+        return CONSTRUCT_ERROR(CHALLENGE_NO_MEMORY, "Failed to allocate input data memory");
     size_t gridPosition = 0;
     input->grid.lines[gridPosition++] = input->rawData;
     for(
