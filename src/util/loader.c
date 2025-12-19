@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <string.h>
 // Local headers
+#include <challenge.h>
 #include <loader.h>
 
 ErrorData load_raw(RawInput *raw, const char *name) {
@@ -42,9 +43,11 @@ ErrorData load_raw(RawInput *raw, const char *name) {
 
 ErrorData find_lines(InputData *input) {
     for(size_t index = 0; index < input->raw.size; index++) {
-        if(input->raw.data[index] == '\r')
+        if(delimiter == '\n' && input->raw.data[index] == '\r') {
             input->raw.data[index] = '\0';
-        else if(input->raw.data[index] == '\n')
+            continue;
+        }
+        if(input->raw.data[index] == delimiter)
             input->grid.height++;
     }
 
@@ -58,7 +61,7 @@ ErrorData find_lines(InputData *input) {
         index < input->raw.size && gridPosition < input->grid.height;
         index++
     ) {
-        if(input->raw.data[index] == '\n') {
+        if(input->raw.data[index] == delimiter) {
             input->raw.data[index] = '\0';
             input->grid.lines[gridPosition++] = input->raw.data + index + 1;
         }
