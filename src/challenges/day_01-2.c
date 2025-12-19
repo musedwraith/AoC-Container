@@ -21,8 +21,8 @@ ErrorData evaluate(InputData *input, Answer *result) {
                 int start = position;
                 position -= rotations;
                 if(position <= 0) {
-                    overflows = (-position / 100) + 1;
-                    if(start == 0) overflows--;
+                    overflows = -position / 100;
+                    if(start != 0) overflows++;
                 }
                 position = (position % 100 + 100) % 100;
                 break;
