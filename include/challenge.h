@@ -8,4 +8,5 @@ ErrorData evaluate(InputData *input, Answer *result);
 extern const char delimiter;
 extern const char *dataFileName;
 
+
 #endif
