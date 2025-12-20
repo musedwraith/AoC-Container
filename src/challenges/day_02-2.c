@@ -13,10 +13,10 @@ const char *dataFileName = "./data/day_02.txt";
 #define TEXT_LEN 256
 
 static bool get_range(const char *line, int64_t *start, int64_t *end);
-static bool is_duplicate(const char *number, size_t length);
+static bool is_duplicate(const char *numberText, int length);
 
 ErrorData evaluate(InputData *input, Answer *result) {
-    *result = (Answer) { "Invalid ID's", 0 };
+    *result = (Answer) { "Sum of invalid ID's", 0 };
 
     LineFeed feed = create_linefeed(input);
     for(char *line = get_linefeed(&feed); line != NULL; line = get_linefeed(&feed)) {
@@ -24,8 +24,18 @@ ErrorData evaluate(InputData *input, Answer *result) {
         if(get_range(line, &start, &end)) continue;
         char numberText[TEXT_LEN];
         for(int64_t i = start; i <= end; i++) {
-            snprintf(numberText, TEXT_LEN, "%lld", i);
-            if(is_duplicate(numberText, strlen(numberText)))
+            int status = snprintf(numberText, TEXT_LEN, "%lld", i);
+            if(status < 0)
+                return CONSTRUCT_ERROR(
+                    CHALLENGE_ENCODING_FAILURE,
+                    "Failed to encode number to text conversion"
+                );
+            if(status >= TEXT_LEN)
+                return CONSTRUCT_ERROR(
+                    CHALLENGE_ENCODING_FAILURE,
+                    "Converted number had length too great for buffer"
+                );
+            if(is_duplicate(numberText, status))
                 result->output += i;
         }
     }
@@ -40,12 +50,10 @@ static bool get_range(const char *line, int64_t *start, int64_t *end) {
     return false;
 }
 
-static bool is_duplicate(const char *numberText, size_t length) {
-    if(length % 2 != 0) return false;
-    size_t half = length / 2;
-    for(size_t i = 0; i < half; i++) {
-        if(numberText[i] != numberText[i + half])
-            return false;
+static bool is_duplicate(const char *numberText, int length) {
+    if(length == 1) return false;
+    for(int i = 0; i < length; i++) {
+
     }
     return true;
 }
