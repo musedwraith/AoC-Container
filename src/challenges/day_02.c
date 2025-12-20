@@ -8,7 +8,7 @@
 #include <feed.h>
 
 const char delimiter = ',';
-const char *dataFileName = "./data/sample.txt";
+const char *dataFileName = "./data/day_02.txt";
 
 #define TEXT_LEN 256
 
