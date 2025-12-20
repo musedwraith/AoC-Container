@@ -28,7 +28,8 @@ typedef enum {
     CHALLENGE_SUCCESS,
     CHALLENGE_FAILURE,
     CHALLENGE_NO_MEMORY,
-    CHALLENGE_NO_READ
+    CHALLENGE_NO_READ,
+    CHALLENGE_ENCODING_FAILURE
 } ChallengeCode;
 
 typedef struct {

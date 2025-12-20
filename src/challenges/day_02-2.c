@@ -51,11 +51,9 @@ static bool get_range(const char *line, int64_t *start, int64_t *end) {
 }
 
 static bool is_duplicate(const char *numberText, int length) {
-    if(length % 2 != 0) return false;
-    int half = length / 2;
-    for(int i = 0; i < half; i++) {
-        if(numberText[i] != numberText[i + half])
-            return false;
+    if(length == 1) return false;
+    for(int i = 0; i < length; i++) {
+
     }
     return true;
 }
